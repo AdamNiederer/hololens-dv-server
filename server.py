@@ -1,9 +1,9 @@
 import asyncio
 import websockets
 from json import loads, dumps, JSONDecodeError
-from .model import Model
+from model import Model
 
-model = Model("data.txt")
+model = Model("arxiv.json")
 
 async def get_data(query, arg=None):
     print(model.similar(query))
@@ -16,9 +16,9 @@ async def hello(socket, path):
     try:
         req = loads(req)
         if req.get("cmd") == "fetchData":
-            res = await get_data(req.get("query"), req.get("args"))
+            res = dumps(list(map(float, model.similar(req.get("query") or "Ling is weird"))))
         elif req.get("cmd") == "getNode":
-            res = await get_node(req.get("id"))
+            res = dumps(model.doc(req.get("id")))
         else:
             res = dumps({"resp": "err"})
         await socket.send(res)
